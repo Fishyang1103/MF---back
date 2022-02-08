@@ -8,15 +8,17 @@ import md5 from 'md5'
 const userSchema = new mongoose.Schema({
   account: {
     type: String,
-    minlength: [4, '帳號必須 4 個字以上'],
-    maxlength: [15, '帳號最多 15 個字'],
+    default: ''
+    // minlength: [4, '帳號必須 4 個字以上'],
+    // maxlength: [15, '帳號最多 15 個字'],
     // 不可重複
-    unique: true,
-    required: [true, '帳號不能為空']
+    // unique: true,
+    // required: [true, '帳號不能為空']
   },
   password: {
     type: String,
-    required: [true, '密碼不能為空']
+    default: ''
+    // required: [true, '密碼不能為空']
   },
   role: {
     // 0 一般會員

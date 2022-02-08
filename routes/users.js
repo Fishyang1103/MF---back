@@ -5,7 +5,9 @@ import {
   signUp,
   login,
   signForLine,
+  signInLineData,
   logout,
+  getUsers,
   extend,
   getUserInfo
 } from '../controllers/users.js'
@@ -17,6 +19,9 @@ const router = express.Router()
 router.post('/', content('application/json'), signUp)
 router.post('/login', content('application/json'), login)
 router.get('/line',signForLine)
+router.get('/signInLineData', signInLineData)
+// getUsers 取得所有使用者資料
+router.get('/all', auth, getUsers)
 router.post('/extend', auth, extend)
 router.delete('/logout', auth, logout)
 router.get('/me', auth, getUserInfo)
