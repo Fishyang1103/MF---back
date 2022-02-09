@@ -4,7 +4,7 @@ import auth from '../middleware/auth.js'
 import {
   signUp,
   login,
-  signForLine,
+  signInLine,
   signInLineData,
   logout,
   getUsers,
@@ -18,7 +18,7 @@ const router = express.Router()
 // 註冊
 router.post('/', content('application/json'), signUp)
 router.post('/login', content('application/json'), login)
-router.get('/line',signForLine)
+router.get('/line',signInLine)
 router.get('/signInLineData', signInLineData)
 // getUsers 取得所有使用者資料
 router.get('/all', auth, getUsers)

@@ -53,7 +53,7 @@ export const login = async (req, res) => {
 }
 
 // line 登入
-export const signForLine = async (req, res) => {
+export const signInLine = async (req, res) => {
   try {
     //  Qs 將回傳的 JSON 轉 form-urlencoded 格式， line 才可以接收資料
     const options = Qs.stringify({
