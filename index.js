@@ -22,6 +22,8 @@ const app = express()
 // 設定前端來的跨域請求
 app.use(cors({
   origin (origin, callback) {
+    // undefined-->postman
+    // 如果是下面三個就允許
     if (origin === undefined || origin.includes('github') || origin.includes('localhost')) {
       callback(null, true)
     } else {
