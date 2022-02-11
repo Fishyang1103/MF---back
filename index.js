@@ -22,7 +22,7 @@ const app = express()
 // 設定前端來的跨域請求
 app.use(cors({
   origin (origin, callback) {
-    // undefined-->postman
+    // undefined-->這邊表postman
     // 如果是下面三個就允許
     if (origin === undefined || origin.includes('github') || origin.includes('localhost')) {
       callback(null, true)
@@ -33,6 +33,8 @@ app.use(cors({
 }))
 
 // cors 的錯誤
+// 四個參數表處理錯誤的 middleware
+// 三個是一般的 middleware
 app.use((_, req, res, next) => {
   res.status(403).send({ success: false, message: '請求被拒絕' })
 })

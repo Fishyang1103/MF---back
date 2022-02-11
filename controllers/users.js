@@ -29,6 +29,7 @@ export const signUp = async (req, res) => {
 
 // login = 登入
 export const login = async (req, res) => {
+  console.log(login)
   try {
     const user = await users.findOne(
       { account: req.body.account, password: md5(req.body.password) },
@@ -54,7 +55,9 @@ export const login = async (req, res) => {
 
 // line 登入
 export const signInLine = async (req, res) => {
+  console.log(1)
   try {
+    console.log(2)
     //  Qs 將回傳的 JSON 轉 form-urlencoded 格式， line 才可以接收資料
     const options = Qs.stringify({
       grant_type: 'authorization_code',
@@ -63,35 +66,32 @@ export const signInLine = async (req, res) => {
       client_id: process.env.CHANNEL_ID,
       client_secret: process.env.CHANNEL_SECRET
     })
+    console.log(3)
     // 跟 line 請求 使用者資料
     const { data } = await axios.post('https://api.line.me/oauth2/v2.1/token', options, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     })
-    //   "access_token": "" 有效期間為 30 天的 Access token。
-    //   "expires_in": "" 過期之前的秒數。
-    //   "token_type": "Bearer"
-    //   "refresh_token": "" 取得新的 Access token，所需要的 Token。
-    //   "scope": "openid profile" 使用者提供的權限
-    //   "id_token": "" 包含用戶資訊的 JWT (Scopes 需有 openid)
 
-     // 解析回傳的 id_Token
+    // 解析回傳的 id_Token
     const decoded = jwt.decode(data.id_token)
-   // 查詢是否有使用者資料有這個 line UserID (sub) 紀錄的 lineID ，順便寫入資料庫 line 欄位裡以便後續使用
+
+    // 查詢是否有使用者資料有這個 line UserID (sub) 紀錄的 lineID ，順便寫入資料庫 line 欄位裡以便後續使用
     let result = await users.findOne({ line: decoded.sub })
     if (result === null) {
-     // 如果是新使用者，就創建一個新帳號
+      console.log(4)
+      // 如果是新使用者，就創建一個新帳號
       result = await users.create({ line: decoded.sub })
     }
 
     // 重新簽發一個我的 jwt
     const myjwt = jwt.sign(
-     // jwt 內容資料
+      // jwt 內容資料
       { _id: result._id.toString() },
-     // 加密用的key
+      // 加密用的key
       process.env.SECRET,
-     // jwt 設定有效期為7天
+      // jwt 設定有效期為7天
       { expiresIn: '7 days' }
     )
 
@@ -101,21 +101,22 @@ export const signInLine = async (req, res) => {
 
     // 把序號存入使用者資料
     result.tokens.push(myjwt)
+
     // 儲存之前不驗證就存入
     result.save({ validateBeforeSave: false })
     // 重新將請求導回前台
     res.redirect(process.env.FRONT_URL + '?jwt=' + myjwt)
-
-    console.log('signForLine result :' + inspect({ result }))
- } catch (error) {
-   console.log(error)
-   res.status(500).send({
-     success: false,
-     message: '伺服器錯誤'
-   })
- }
+    console.log('signInLine result :' + inspect({ result }))
+    console.log(2)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      success: false,
+      message: '伺服器錯誤'
+    })
+  }
+  console.log('signInLine Line登入')
 }
-
 // Line登入換資料
 export const signInLineData = async (req, res) => {
   try {
