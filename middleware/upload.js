@@ -1,6 +1,8 @@
-// 讀取傳進來的檔案
 import multer from 'multer'
+import 'dotenv/config'
+// 引用上傳平台
 import { v2 as cloudinary } from 'cloudinary'
+// 上傳套件與上傳平台連結
 import { CloudinaryStorage } from 'multer-storage-cloudinary'
 
 cloudinary.config({
@@ -11,33 +13,36 @@ cloudinary.config({
 
 const upload = multer({
   storage: new CloudinaryStorage({ cloudinary }),
+  // 限制檔案類型
   fileFilter (req, file, cb) {
     if (!file.mimetype.includes('image')) {
-      cb(new multer.MulterError('LIMIT_FORMAT'), false)
+      // 觸發自訂的 LIMIT_FILE_FORMAT 錯誤
+      cb(new multer.MulterError('LIMIT_FILE_FOTMAT'), false)
     } else {
-      // 允許檔案過去
       cb(null, true)
     }
   },
-  // 限制檔案大小
   limits: {
+    // 限制檔案1MB
     fileSize: 1024 * 1024
   }
 })
 
 export default async (req, res, next) => {
-  // 單檔上傳
   upload.single('image')(req, res, async error => {
+    // 是否為上傳錯誤
     if (error instanceof multer.MulterError) {
       let message = '上傳錯誤'
-      if (error.code === 'LIMIT_FILE_SIZE') {
+      if (error.code === 'LIMIT_FILE_FOTMAT') {
+        message = '格式錯誤'
+      } else if (error.code === 'LIMIT_FILE_SIZE') {
         message = '檔案太大'
-      } else if (error.code === 'LIMIT_FORMAT') {
-        message = '上傳錯誤'
       }
-      res.stauts(400).send({ success: false, message })
+      res.status(400).send({ success: false, message })
     } else if (error) {
-      res.stauts(500).send({ success: false, message: '伺服器錯誤' })
+      console.log('uploaderror')
+      res.status(500).send({ success: false, message: '伺服器錯誤' })
+      console.log(error)
     } else {
       next()
     }

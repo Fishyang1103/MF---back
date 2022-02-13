@@ -1,10 +1,10 @@
 import users from '../models/users.js'
-import Qs from 'qs'
-import axios from 'axios'
-import md5 from 'md5'
 import jwt from 'jsonwebtoken'
+import axios from 'axios'
+import Qs from 'qs'
 // 展開 [object Object] 套件
 import { inspect } from 'util' 
+import md5 from 'md5'
 
 // signup = 註冊
 export const signUp = async (req, res) => {
@@ -29,12 +29,12 @@ export const signUp = async (req, res) => {
 
 // login = 登入
 export const login = async (req, res) => {
-  console.log(login)
   try {
     const user = await users.findOne(
       { account: req.body.account, password: md5(req.body.password) },
       '-password'
     )
+    console.log(123)
     if (user) {
       const token = jwt.sign({ _id: user._id.toString() }, process.env.SECRET, { expiresIn: '7 days' })
       user.tokens.push(token)
@@ -42,7 +42,7 @@ export const login = async (req, res) => {
       const result = user.toObject()
       delete result.tokens
       result.token = token
-      result.cart = result.cart.length
+      // result.cart = result.cart.length
       res.status(200).send({ success: true, message: '', result })
     } else {
       res.status(404).send({ success: false, message: '帳號或密碼錯誤' })
@@ -52,6 +52,22 @@ export const login = async (req, res) => {
     res.status(500).send({ success: false, message: '伺服器錯誤' })
   }
 }
+
+// logout = 登出
+export const logout = async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filter(token => token.jwt !== req.token)
+    req.user.save({ validateBeforeSave: false })
+    res.status(200).send({
+      success: true,
+      message: ''
+    })
+  } catch (error) {
+    res.status(500).send({ success: false, message: '伺服器錯誤' })
+  }
+}
+
+
 
 // line 登入
 export const signInLine = async (req, res) => {
@@ -80,7 +96,6 @@ export const signInLine = async (req, res) => {
     // 查詢是否有使用者資料有這個 line UserID (sub) 紀錄的 lineID ，順便寫入資料庫 line 欄位裡以便後續使用
     let result = await users.findOne({ line: decoded.sub })
     if (result === null) {
-      console.log(4)
       // 如果是新使用者，就創建一個新帳號
       result = await users.create({ line: decoded.sub })
     }
@@ -120,16 +135,10 @@ export const signInLine = async (req, res) => {
 // Line登入換資料
 export const signInLineData = async (req, res) => {
   try {
-    // 從 header 驗證取出 jwt，將 Bearer Token 取代成 Token
     const token = req.headers.authorization ? req.headers.authorization.replace('Bearer ', '') : ''
-    // 如果有 jwt
     if (token.length > 0) {
-    // 解碼 jwt
       const decoded = jwt.verify(token, process.env.SECRET)
-      console.log(decoded)
-      // 取出裡面紀錄的使用者 id
       const _id = decoded._id
-      // 查詢是否有使用者資料有 jwt 紀錄的 _id
       req.user = await users.findOne({ _id })
       console.log(req.user.name)
 
@@ -140,15 +149,14 @@ export const signInLineData = async (req, res) => {
         name: req.user.name,
         account: req.user.name,
         avatar: req.user.avatar,
-        role: req.user.role
+        role: req.user.role,
+        cart: req.user.cart
       })
     } else {
-    // 沒有 jwt，觸發錯誤，讓程式進 catch
       throw new Error()
     }
   } catch (error) {
     console.log(error)
-    // .send() 送資料出去
     res.status(401).send({
       success: false,
       message: error
@@ -185,6 +193,43 @@ export const getUsers = async (req, res) => {
   console.log('getUsers 取得所有使用者資料')
 }
 
+// 舊換新 token
+export const extend = async (req, res) => {
+  try {
+    // 先去找傳進來的 token 是符合使用者資料庫裡的第幾個
+    const idx = req.user.tokens.findIndex(token => req.token)
+    // 簽發驗證序號 有效期為7天
+    const token = jwt.sign(
+      // jwt 內容資料
+      { _id: req.user._id.toString() },
+      // 加密用的key
+      process.env.SECRET,
+      // jwt 設定有效期
+      { expiresIn: '7 days' }
+    )
+    console.log(token)
+    // 將新 token 替換原本的
+    req.user.tokens[idx] = token
+    // 標記陣列文字已修改過，不然不會更新
+    req.user.markModified('tokens')
+    // 儲存之前不驗證就存入
+    req.user.save({ validateBeforeSave: false })
+    // 把序號存入使用者資料
+    req.user.tokens.push({ jwt: token })
+    res.status(200).send({
+      success: true,
+      message: '登入成功',
+      result: token
+    })
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: '伺服器錯誤'
+    })
+  }
+  console.log('extend 更新 token')
+}
+
 // getUserInfo 抓取使用者資料
 export const getUserInfo = async (req, res) => {
   try {
@@ -206,30 +251,4 @@ export const getUserInfo = async (req, res) => {
     })
   }
   console.log('getUserInfo 抓取使用者資料')
-}
-
-// logout = 登出
-export const logout = async (req, res) => {
-  try {
-    req.user.tokens = req.user.tokens.filter(token => token !== req.token)
-    await req.user.save()
-    res.status(200).send({ success: true, message: '' })
-  } catch (error) {
-    res.status(500).send({ success: false, message: '伺服器錯誤' })
-    console.log(error)
-  }
-}
-
-// 舊換新 token
-export const extend = async (req, res) => {
-  try {
-    const idx = req.user.tokens.findIndex(token => token === req.token)
-    const token = jwt.sign({ _id: req.user._id.toString() }, process.env.SECRET, { expiresIn: '7 days' })
-    req.user.tokens[idx] = token
-    req.user.markModified('tokens')
-    await req.user.save()
-    res.status(200).send({ success: true, message: '', result: { token } })
-  } catch (error) {
-    res.status(500).send({ success: false, message: '伺服器錯誤' })
-  }
 }

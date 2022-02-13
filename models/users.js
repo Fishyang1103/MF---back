@@ -25,10 +25,23 @@ const userSchema = new mongoose.Schema({
     // 1 管理員
     type: Number,
     // 預設是一般會員
-    default: 0
+    default: 0,
+    required: [true, '沒有使用者分類']
   },
   tokens: {
     type: [String]
+  },
+  // 大頭貼
+  avatar: {
+    type: String
+  },
+  // LINE ID
+  line: {
+    type: String
+  },
+  // LINE 名字
+  name: {
+    type: String
   },
   cart: {
     type: [
@@ -64,19 +77,19 @@ userSchema.pre('save', function (next) {
   next()
 })
 
-userSchema.pre('findOneAndUpdate', function (next) {
-  const user = this._update
-  if (user.password) {
-    if (user.password.length >= 4 && user.password.length <= 15) {
-      user.password = md5(user.password)
-    } else {
-      const error = new mongoose.Error.ValidationError(null)
-      error.addError('password', new mongoose.Error.ValidatorError({ message: '密碼長度錯誤' }))
-      next(error)
-      return
-    }
-  }
-  next()
-})
+// userSchema.pre('findOneAndUpdate', function (next) {
+//   const user = this._update
+//   if (user.password) {
+//     if (user.password.length >= 4 && user.password.length <= 15) {
+//       user.password = md5(user.password)
+//     } else {
+//       const error = new mongoose.Error.ValidationError(null)
+//       error.addError('password', new mongoose.Error.ValidatorError({ message: '密碼長度錯誤' }))
+//       next(error)
+//       return
+//     }
+//   }
+//   next()
+// })
 
-export default mongoose.model('users', userSchema)
+export default mongoose.model('user', userSchema)

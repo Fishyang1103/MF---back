@@ -51,3 +51,33 @@ export const getProductById = async (req, res) => {
     }
   }
 }
+
+// 更新商品
+export const updateProductById = async (req, res) => {
+  const data = {
+    name: req.body.name,
+    price: req.body.price,
+    description: req.body.description,
+    sell: req.body.sell,
+    categoey: req.body.categoey
+  }
+  // 如果圖片有換再更新
+  if (req.file) {
+    data.image = req.file.path
+  }
+  try {
+    const result = await products.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true })
+    res.status(200).send({ success: true, message: '', result })
+  } catch (error) {
+    // 跟id有關 所以有 CastError
+    if (error.name === 'CastError') {
+      res.status(404).send({ success: false, message: '找不到' })
+    // 新增會有 ValidationError
+    } else if (error.name === 'ValidationError') {
+      const key = Object.keys(error.errors)[0]
+      res.status(400).send({ success: false, message: error.errors[key].message })
+    } else {
+      res.status(500).send({ success: false, message: '伺服器錯誤' })
+    }
+  }
+}

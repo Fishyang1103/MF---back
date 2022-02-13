@@ -7,7 +7,7 @@ const productSchema = new mongoose.Schema({
   },
   price: {
     type: Number,
-    min: [0, '價格不得低於0'],
+    min: [1, '價格不得低於1'],
     required: [true, '價格不得為空']
   },
   description: {

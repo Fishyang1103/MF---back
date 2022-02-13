@@ -7,7 +7,8 @@ import {
   create,
   getProducts,
   getAllProducts,
-  getProductById
+  getProductById,
+  updateProductById
 } from '../controllers/products.js'
 
 const router = express.Router()
@@ -15,6 +16,7 @@ const router = express.Router()
 // (路徑, function)
 // 註冊
 // 先驗證有沒有登入->是不是管理員->驗證資料格式->接收傳進來的東西->create
+// 上傳商品
 router.post('/', auth, admin, content('multipart/form-data'), upload, create)
 // 只有前台出現的商品
 router.get('/', getProducts)
@@ -22,5 +24,7 @@ router.get('/', getProducts)
 router.get('/all', auth, admin, getAllProducts)
 // 單個商品
 router.get('/:id', getProductById)
+// 更新商品
+router.patch('/:id', auth, admin, content('multipart/form-data'), upload, updateProductById)
 
 export default router
