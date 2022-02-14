@@ -7,9 +7,12 @@ import {
   logout,
   signInLine,
   signInLineData,
+  extend,
   getUsers,
   getUserInfo,
-  extend
+  addCart,
+  getCart,
+  updateCart
 } from '../controllers/users.js'
 
 const router = express.Router()
@@ -21,8 +24,12 @@ router.get('/line', signInLine)
 router.post('/login', content('application/json'), login)
 router.delete('/logout', auth, logout)
 router.get('/signInLineData', signInLineData)
+router.post('/extend', auth, extend)
 router.get('/all', auth, getUsers)
 router.get('/me', auth, getUserInfo)
-router.post('/extend', auth, extend)
+router.post('/me/cart', auth, addCart)
+router.get('/me/cart', auth, getCart)
+router.patch('/me/cart', auth, updateCart)
+
 
 export default router
