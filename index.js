@@ -7,6 +7,7 @@ import cors from 'cors'
 // 引入使用者的router
 import usersRouter from './routes/users.js'
 import productsRouter from './routes/products.js'
+import ordersRouter from './routes/orders.js'
 // 轉換line格式
 import Qs from 'qs'
 import axios from 'axios'
@@ -48,6 +49,7 @@ app.use((_, req, res, next) => {
 
 app.use('/users', usersRouter)
 app.use('/products', productsRouter)
+app.use('/orders', ordersRouter)
 
 app.all('*', (req, res) => {
   res.status(404).send({ success: false, message: '找不到嗚嗚' })

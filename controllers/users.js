@@ -142,6 +142,8 @@ export const signInLineData = async (req, res) => {
       const _id = decoded._id
       req.user = await users.findOne({ _id })
       console.log(req.user.name)
+      console.log(req.user.cart)
+      console.log(1234)
 
       res.status(200).send({
         success: true,
