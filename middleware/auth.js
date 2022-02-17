@@ -24,6 +24,7 @@ export default async (req, res, next) => {
     if (error.name === 'TokenExpiredError' && req.baseUrl === '/users' && req.path === '/extend') {
       next()
     } else {
+      console.log(error)
       res.status(401).send({ success: false, message: '驗證錯誤' })
     }
   }
