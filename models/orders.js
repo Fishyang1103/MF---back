@@ -5,6 +5,42 @@ const orderSchema = new mongoose.Schema({
     type: mongoose.ObjectId,
     ref: 'users'
   },
+  userInfo: {
+    name: {
+      type: String,
+      default: ''
+    },
+    phone: {
+      type: String,
+      default: '',
+      validator: {
+        validator (phone) {
+          if (phone.length === 0) return true
+          return validator.isMobilePhone(phone, 'zh-TW')
+        }
+      }
+    },
+    address: {
+      type: String,
+      default: ''
+    },
+    courier: {
+      type: String,
+      enum: {
+        values: ['宅配', '自取']
+      }
+    },
+    payment: {
+      type: String,
+      enum: {
+        values: ['貨到付款', 'ATM轉帳']
+      }
+    },
+    remark: {
+      type: String,
+      default: ''
+    },
+  },
   products: {
     type: [
       {
