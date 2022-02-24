@@ -30,11 +30,13 @@ const orderSchema = new mongoose.Schema({
         values: ['宅配', '自取']
       }
     },
-    payment: {
+    deliveryDate: {
       type: String,
-      enum: {
-        values: ['貨到付款', 'ATM轉帳']
-      }
+      default: ''
+    },
+    deliveryTime: {
+      type: String,
+      default: ''
     },
     remark: {
       type: String,

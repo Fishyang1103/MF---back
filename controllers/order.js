@@ -33,15 +33,16 @@ export const checkout = async (req, res) => {
         }
       }
     ])
+
     if (hasNotSell.length > 0) {
       res.status(400).send({ success: false, message: '包含下架商品' })
       return
     }
-    const result = await orders.create({ user: req.user._id, products: req.user.cart })
+    const result = await orders.create({ user: req.user._id, userInfo:req.body ,products: req.user.cart })
     // 清空購物車
     req.user.cart = []
     await req.user.save()
-    res.status(200).send({ success: true, message: '', result: result._id })
+    res.status(200).send({ success: true, message: '', result})
   } catch (error) {
     if (error.name === 'ValidationError') {
       const key = Object.keys(error.errors)[0]
