@@ -1,5 +1,6 @@
 import orders from '../models/orders.js'
 import users from '../models/users.js'
+// import bot from '../lineBot/bot.js'
 
 // 結帳
 export const checkout = async (req, res) => {
@@ -72,5 +73,26 @@ export const getAllOrders = async (req, res) => {
   } catch (error) {
     res.status(500).send({ success: false, message: '伺服器錯誤123' })
     console.log(error)
+  }
+}
+// 更改訂單狀態
+export const changeOrder = async (req, res) => {
+  const data = {
+    state: req.body.state
+  }
+  try {
+    const result = await orders.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true })
+    res.status(200).send({ success: true, message: '', result })
+    const user = await users.findById(result.user)
+    bot.push(user.line, `訂單 ${result._id} 已出貨`)
+  } catch (error) {
+    if (error.name === 'CastError') {
+      res.status(404).send({ success: false, message: '找不到' })
+    } else if (error.name === 'ValidationError') {
+      const key = Object.keys(error.errors)[0]
+      res.status(400).send({ success: false, message: error.errors[key].message })
+    } else {
+      res.status(500).send({ success: false, message: '伺服器錯誤' })
+    }
   }
 }

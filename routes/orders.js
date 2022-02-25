@@ -5,7 +5,8 @@ import admin from '../middleware/admin.js'
 import {
   checkout,
   getMyOrders,
-  getAllOrders
+  getAllOrders,
+  changeOrder
 } from '../controllers/order.js'
 
 const router = express.Router()
@@ -17,6 +18,7 @@ router.post('/', auth, content('application/json'), checkout)
 router.get('/me', auth, getMyOrders)
 // 管理者看全部的訂單
 router.get('/all', auth, admin, getAllOrders)
-
+// 更改訂單狀態
+router.patch('/:id', auth, admin, changeOrder)
 
 export default router

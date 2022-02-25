@@ -41,7 +41,11 @@ const orderSchema = new mongoose.Schema({
     remark: {
       type: String,
       default: ''
-    },
+    }
+  },
+  orderState: {
+    type: Boolean,
+    default: false
   },
   products: {
     type: [
