@@ -38,6 +38,12 @@ const orderSchema = new mongoose.Schema({
       type: String,
       default: ''
     },
+    image: {
+      type: String
+    },
+    // total: {
+    //   type: String
+    // },
     remark: {
       type: String,
       default: ''

@@ -26,7 +26,7 @@ app.use(cors({
   origin (origin, callback) {
     // undefined-->這邊表postman
     // 如果是下面三個就允許
-    if (origin === undefined || origin.includes('github') || origin.includes('localhost')) {
+    if (origin === undefined || origin.includes('github') || origin.includes('localhost') || origin.includes('172.20')) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed'), false)
