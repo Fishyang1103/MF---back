@@ -41,9 +41,9 @@ const orderSchema = new mongoose.Schema({
     image: {
       type: String
     },
-    // total: {
-    //   type: String
-    // },
+    total: {
+      type: Number,
+    },
     remark: {
       type: String,
       default: ''

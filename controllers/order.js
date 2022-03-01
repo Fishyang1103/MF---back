@@ -40,6 +40,10 @@ export const checkout = async (req, res) => {
       return
     }
     const result = await orders.create({ user: req.user._id, userInfo:req.body ,products: req.user.cart })
+    if (req.file) {
+      result.userInfo.image = req.file.path
+      await result.save()
+    }
     // 清空購物車
     req.user.cart = []
     await req.user.save()

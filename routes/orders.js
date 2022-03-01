@@ -15,7 +15,7 @@ const router = express.Router()
 
 // (路徑, function)
 // 結帳
-router.post('/', auth, content('application/json'), upload, checkout)
+router.post('/', auth, content('multipart/form-data'), upload, checkout)
 // 使用者自己的訂單
 router.get('/me', auth, getMyOrders)
 // 管理者看全部的訂單
