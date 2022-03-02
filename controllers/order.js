@@ -82,12 +82,12 @@ export const getAllOrders = async (req, res) => {
 // 更改訂單狀態
 export const changeOrder = async (req, res) => {
   const data = {
-    state: req.body.state
+    orderState: req.body.orderState
   }
   try {
     const result = await orders.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true })
     res.status(200).send({ success: true, message: '', result })
-    const user = await users.findById(result.user)
+    // const user = await users.findById(result.user)
     // bot.push(user.line, `訂單 ${result._id} 已出貨`)
   } catch (error) {
     if (error.name === 'CastError') {
